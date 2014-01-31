@@ -1,4 +1,5 @@
 require_relative './grid'
+require_relative './rule'
 
 class World
   DEAD = '.'
@@ -9,6 +10,7 @@ class World
   def initialize(size)
     @size = size
     @grid = Grid.new(size)
+    @rule = Rule.new
   end
 
   def cell_at(row, col)
@@ -48,19 +50,8 @@ class World
 
   def process(row, col)
     neighbours = @grid.neighbours_at(row, col)
-    alive_neighbours = neighbours.map(&:alive?).select { |alive| alive }.count
-    cell =  cell_at(row,col)
-
-    if (cell.alive?)
-      if (alive_neighbours < 2)
-        true
-      elsif (alive_neighbours == 2 || alive_neighbours == 3)
-        false
-      else
-        true
-      end
-    elsif (alive_neighbours == 3)
-      true
-    end
+    alive_neighbours = neighbours.select { |c| c.alive? }.count
+    cell = cell_at(row, col)
+    @rule.toggle?(cell.alive?, alive_neighbours)
   end
 end
